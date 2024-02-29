@@ -1,0 +1,2 @@
+class PWebApiResponse:
+    pass
