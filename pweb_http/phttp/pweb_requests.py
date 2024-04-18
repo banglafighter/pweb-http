@@ -69,7 +69,7 @@ class PWebRequests:
         return self
 
     def add_bearer_token(self, token) -> 'PWebRequests':
-        self.add_header("Authorization", "Bearer " + str(token))
+        self.add_header("Authorization", f"Bearer {token}")
         return self
 
     def add_content_type(self, content_type) -> 'PWebRequests':

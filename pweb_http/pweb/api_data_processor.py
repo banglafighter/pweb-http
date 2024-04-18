@@ -1,6 +1,11 @@
 from pweb_http.phttp.pweb_requests import PWebRequests
 
 
+class ApiUrl:
+    LOGIN = "api/v1/operator/login"
+    RENEW_TOKEN = "api/v1/operator/renew-token"
+
+
 class ApiDataProcessor:
     pweb_requests = PWebRequests()
     accessToken: str
