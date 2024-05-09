@@ -59,6 +59,16 @@ class PWebRequests:
         response = requests.post(url, headers=self.headers, json=json_dict, data=data, files=file)
         return HTTPResponse.get_response(response)
 
+    def put(self, url: str, json_dict: dict = None, data: dict = None, file: dict = None) -> HTTPResponse:
+        url = self._get_url(url)
+        response = requests.put(url, headers=self.headers, json=json_dict, data=data, files=file)
+        return HTTPResponse.get_response(response)
+
+    def patch(self, url: str, json_dict: dict = None, data: dict = None, file: dict = None) -> HTTPResponse:
+        url = self._get_url(url)
+        response = requests.patch(url, headers=self.headers, json=json_dict, data=data, files=file)
+        return HTTPResponse.get_response(response)
+
     def delete(self, url: str, params: dict = None) -> HTTPResponse:
         url = self._get_url(url)
         response = requests.delete(url, headers=self.headers, params=params)
