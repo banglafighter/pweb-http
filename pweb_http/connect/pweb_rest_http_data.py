@@ -9,7 +9,6 @@ class PWebRestConst:
     ERROR = "error"
 
 
-
 @dataclass
 class HTTPRequestData:
     url: str
@@ -20,6 +19,7 @@ class HTTPRequestData:
     file: dict = None
     exception: bool = True
     is_open_auth: bool = False
+    is_data_response: bool = True
 
 
 @dataclass
@@ -29,5 +29,5 @@ class PwebRestCredentials(SDLize):
     password: str
     usernameFieldName: str = "username"
     passwordFieldName: str = "password"
-    loginUrl: str = "api/v1/auth/login"
-    renewTokenUrl: str = "api/v1/auth/renew-token"
+    loginUrl: str = None
+    renewTokenUrl: str = None

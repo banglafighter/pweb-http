@@ -1,7 +1,7 @@
-from ppy_common import DataUtil, Console
+from ppy_common import Console
 from pweb_http.common.pweb_http_exception import PWebHTTPException
 from pweb_http.connect.pweb_rest_http_data import PwebRestCredentials, HTTPRequestData, PWebRestConst
-from pweb_http.connect.pweb_rest_http_dto import PwebRestLoginResponse, PwebRestLoginToken
+from pweb_http.connect.pweb_rest_http_dto import PwebRestLoginResponse, PwebRestLoginToken, PwebRestResponse
 from pweb_http.connect.sdlize import SDLize
 from pweb_http.phttp.phttp_const import RequestType
 from pweb_http.phttp.pweb_requests import HTTPResponse, PWebRequests
@@ -23,35 +23,23 @@ class PWebRestProcessor:
             return {"data": json_dict}
         return json_dict
 
-    def process_error_response(self, response: HTTPResponse, response_data: dict):
-        exception_message = "Something happened wrong!"
-        http_code = response.httpCode
-        if http_code == 403:
-            exception_message = "Access denied"
-
-        exception = PWebHTTPException(exception_message).add_raw_response(response_data)
-        errors = DataUtil.get_dict_value(response_data, "errors")
-        if isinstance(errors, list):
-            for error in errors:
-                message = DataUtil.get_dict_value(error, "message")
-                if message:
-                    exception.add_error(message)
-        raise exception
-
     def log(self, text):
         if self.ENABLE_PRINT_LOG:
             Console.log(text)
 
-    def _get_data(self, response: HTTPResponse, response_obj: SDLize, exception=True):
+    def _get_data(self, response: HTTPResponse, response_obj: SDLize, exception=True, is_data_response=True):
         response_data = response.data
         self.log(response_data)
         if response.status != PWebRestConst.SUCCESS or not response_data:
             if exception:
-                self.process_error_response(response=response, response_data=response_data)
+                raise PWebHTTPException("Unable to process request").add_raw_response(response_data)
             return None
-        if response_obj:
-            return response_obj.load_dict(response_data)
-        return response_data
+        response = PwebRestResponse().load_dict(response_data)
+        if response_obj and response.data:
+            response.data = response_obj.load_dict(response.data)
+        if is_data_response:
+            return response.data
+        return response
 
     def _set_token(self, token: PwebRestLoginToken):
         if not token or not token.accessToken or not token.refreshToken:
@@ -68,7 +56,12 @@ class PWebRestProcessor:
         self._set_token(token=response.token)
 
     def _renew_token(self):
-        pass
+        request_data = {
+            "refreshToken": self._rest_token.refreshToken,
+        }
+        raw_response = self.http_requester.post(url=self._credentials.renewTokenUrl, json_dict={"data": request_data})
+        response = self._get_data(response=raw_response, response_obj=PwebRestLoginToken())
+        self._set_token(token=response.token)
 
     def _init_config(self, is_open_auth: bool = False):
         if not self._credentials:
@@ -104,24 +97,24 @@ class PWebRestProcessor:
         if response.httpCode == 401:
             self._renew_token()
             response: HTTPResponse = self._send_request(request_data=request_data)
-        return self._get_data(response=response, response_obj=response_obj, exception=request_data.exception)
+        return self._get_data(response=response, response_obj=response_obj, exception=request_data.exception, is_data_response=request_data.is_data_response)
 
-    def get_request(self, url: str, params: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False):
-        return self.process_rest_request(request_data=HTTPRequestData(url=url, params=params, request_type=RequestType.GET, exception=exception, is_open_auth=is_open_auth), response_obj=response_obj)
+    def get_request(self, url: str, params: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True):
+        return self.process_rest_request(request_data=HTTPRequestData(url=url, params=params, request_type=RequestType.GET, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response), response_obj=response_obj)
 
-    def delete_request(self, url: str, params: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False):
-        return self.process_rest_request(request_data=HTTPRequestData(url=url, params=params, request_type=RequestType.DELETE, exception=exception, is_open_auth=is_open_auth), response_obj=response_obj)
+    def delete_request(self, url: str, params: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True):
+        return self.process_rest_request(request_data=HTTPRequestData(url=url, params=params, request_type=RequestType.DELETE, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response), response_obj=response_obj)
 
-    def post_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False):
+    def post_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True):
         json_dict = self._prepare_json_request_data(request_obj=request_obj, json_dict=json_dict)
-        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.POST, exception=exception, is_open_auth=is_open_auth), response_obj=response_obj)
+        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.POST, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response), response_obj=response_obj)
 
-    def put_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False):
+    def put_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True):
         json_dict = self._prepare_json_request_data(request_obj=request_obj, json_dict=json_dict)
-        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.PUT, exception=exception, is_open_auth=is_open_auth), response_obj=response_obj)
+        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.PUT, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response), response_obj=response_obj)
 
-    def patch_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False):
+    def patch_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True):
         json_dict = self._prepare_json_request_data(request_obj=request_obj, json_dict=json_dict)
-        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.PATCH, exception=exception, is_open_auth=is_open_auth), response_obj=response_obj)
+        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.PATCH, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response), response_obj=response_obj)
 
 
