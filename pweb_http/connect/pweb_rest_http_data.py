@@ -25,8 +25,8 @@ class HTTPRequestData:
 @dataclass
 class PwebRestCredentials(SDLize):
     baseUrl: str
-    username: str
-    password: str
+    username: str = None
+    password: str = None
     usernameFieldName: str = "username"
     passwordFieldName: str = "password"
     loginUrl: str = None

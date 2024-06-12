@@ -26,3 +26,6 @@ class PwebRestResponse(SDLize):
         if self.status == PWebRestConst.SUCCESS:
             return self.data
         return None
+
+    def is_success(self):
+        return self.status == PWebRestConst.SUCCESS
