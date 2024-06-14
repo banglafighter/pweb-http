@@ -56,6 +56,8 @@ class PWebRestProcessor:
         self._set_token(token=response.token)
 
     def _renew_token(self):
+        if not self._rest_token.refreshToken:
+            raise PWebHTTPException(message="Credentials Expired")
         request_data = {
             "refreshToken": self._rest_token.refreshToken,
         }
