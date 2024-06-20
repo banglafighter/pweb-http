@@ -10,7 +10,7 @@ from pweb_http.phttp.pweb_requests import HTTPResponse, PWebRequests
 class PWebRestProcessor:
     ENABLE_PRINT_LOG: bool = False
     http_requester: PWebRequests = PWebRequests()
-    _credentials: PwebRestCredentials
+    _credentials: PwebRestCredentials = None
     _rest_token: PwebRestLoginToken = None
 
     def __init__(self, credentials: PwebRestCredentials):
@@ -54,28 +54,39 @@ class PWebRestProcessor:
         raw_response = self.http_requester.post(url=self._credentials.loginUrl, json_dict={"data": request_data})
         response = self._get_data(response=raw_response, response_obj=PwebRestLoginResponse())
         self._set_token(token=response.token)
+        self.after_authenticate_success(response=response)
 
-    def _renew_token(self):
+    def after_authenticate_success(self, response):
+        pass
+
+    def _renew_token(self, base_url: str = None):
         if not self._rest_token.refreshToken:
             raise PWebHTTPException(message="Credentials Expired")
         request_data = {
             "refreshToken": self._rest_token.refreshToken,
         }
+
+        if base_url:
+            self.http_requester.baseUrl = base_url
+
         raw_response = self.http_requester.post(url=self._credentials.renewTokenUrl, json_dict={"data": request_data})
         response = self._get_data(response=raw_response, response_obj=PwebRestLoginToken())
         self._set_token(token=response.token)
 
-    def _init_config(self, is_open_auth: bool = False):
+    def _init_config(self, is_open_auth: bool = False, base_url: str = None):
         if not self._credentials:
             raise PWebHTTPException(message="Please provide credentials.")
-        self.http_requester.baseUrl = self._credentials.baseUrl
+
+        if not base_url:
+            base_url = self._credentials.baseUrl
+        self.http_requester.baseUrl = base_url
 
         if is_open_auth:
             return
 
-        if not self.rest_token or not self.rest_token.accessToken:
+        if not self._rest_token or not self._rest_token.accessToken:
             self._init_auth()
-        self.http_requester.add_bearer_token(self.rest_token.accessToken)
+        self.http_requester.add_bearer_token(self._rest_token.accessToken)
 
     def _send_request(self, request_data: HTTPRequestData) -> HTTPResponse:
         response = None
