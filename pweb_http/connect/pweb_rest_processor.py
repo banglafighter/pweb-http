@@ -44,7 +44,7 @@ class PWebRestProcessor:
     def _set_token(self, token: PwebRestLoginToken):
         if not token or not token.accessToken or not token.refreshToken:
             raise PWebHTTPException("Unable to set token")
-        self.rest_token = token
+        self._rest_token = token
 
     def _init_auth(self):
         request_data = {
@@ -54,9 +54,9 @@ class PWebRestProcessor:
         raw_response = self.http_requester.post(url=self._credentials.loginUrl, json_dict={"data": request_data})
         response = self._get_data(response=raw_response, response_obj=PwebRestLoginResponse())
         self._set_token(token=response.token)
-        self.after_authenticate_success(response=response)
+        self.after_authenticate_success(raw_response=raw_response)
 
-    def after_authenticate_success(self, response):
+    def after_authenticate_success(self, raw_response):
         pass
 
     def _renew_token(self, base_url: str = None):
@@ -71,7 +71,7 @@ class PWebRestProcessor:
 
         raw_response = self.http_requester.post(url=self._credentials.renewTokenUrl, json_dict={"data": request_data})
         response = self._get_data(response=raw_response, response_obj=PwebRestLoginToken())
-        self._set_token(token=response.token)
+        self._set_token(token=response)
 
     def _init_config(self, is_open_auth: bool = False, base_url: str = None):
         if not self._credentials:
