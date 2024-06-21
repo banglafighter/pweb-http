@@ -48,7 +48,14 @@ class SDLize(object):
             return getattr(object_class, "__args__")[index]
         return None
 
-    def _load_generic_alias_data(cls, field_type, values):
+    def _load_generic_alias_dict_data(cls, field_type, values):
+        generic_class_name = cls._get_collection_args(cls, field_type, 1)
+        object_dict = {}
+        for name, value in values.items():
+            object_dict[name] = cls._load_data_class(generic_class_name, data=value)
+        return object_dict
+
+    def _load_generic_alias_list_data(cls, field_type, values):
         generic_class_name = cls._get_collection_args(cls, field_type, 0)
         object_list = []
         for value in values:
@@ -65,7 +72,9 @@ class SDLize(object):
             if key in field_name_type:
                 field_type = field_name_type[key]
                 if isinstance(value, list) and isinstance(field_type, GenericAlias):
-                    kwargs[key] = cls._load_generic_alias_data(cls, field_type=field_type, values=value)
+                    kwargs[key] = cls._load_generic_alias_list_data(cls, field_type=field_type, values=value)
+                elif isinstance(value, dict) and isinstance(field_type, GenericAlias):
+                    kwargs[key] = cls._load_generic_alias_dict_data(cls, field_type=field_type, values=value)
                 elif isinstance(value, dict) and issubclass(field_type, SDLize):
                     kwargs[key] = cls._load_data_class(field_type, data=value)
                 else:
