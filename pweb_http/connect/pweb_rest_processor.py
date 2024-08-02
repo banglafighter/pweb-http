@@ -53,6 +53,8 @@ class PWebRestProcessor:
         }
         raw_response = self.http_requester.post(url=self._credentials.loginUrl, json_dict={"data": request_data})
         response = self._get_data(response=raw_response, response_obj=PwebRestLoginResponse())
+        if not response:
+            raise PWebHTTPException(message="Invalid response from remote")
         self._set_token(token=response.token)
         self.after_authenticate_success(raw_response=raw_response)
 
