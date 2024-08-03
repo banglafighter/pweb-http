@@ -51,6 +51,7 @@ class PWebRestProcessor:
             self._credentials.usernameFieldName: self._credentials.username,
             self._credentials.passwordFieldName: self._credentials.password,
         }
+        self.http_requester.baseUrl = self._credentials.baseUrl
         raw_response = self.http_requester.post(url=self._credentials.loginUrl, json_dict={"data": request_data})
         response = self._get_data(response=raw_response, response_obj=PwebRestLoginResponse())
         if not response:
@@ -62,18 +63,22 @@ class PWebRestProcessor:
         pass
 
     def _renew_token(self, base_url: str = None):
-        if not self._rest_token.refreshToken:
-            raise PWebHTTPException(message="Credentials Expired")
-        request_data = {
-            "refreshToken": self._rest_token.refreshToken,
-        }
+        try:
+            if not self._rest_token.refreshToken:
+                raise PWebHTTPException(message="Credentials Expired")
+            request_data = {
+                "refreshToken": self._rest_token.refreshToken,
+            }
 
-        if base_url:
-            self.http_requester.baseUrl = base_url
+            if base_url:
+                self.http_requester.baseUrl = base_url
 
-        raw_response = self.http_requester.post(url=self._credentials.renewTokenUrl, json_dict={"data": request_data})
-        response = self._get_data(response=raw_response, response_obj=PwebRestLoginToken())
-        self._set_token(token=response)
+            raw_response = self.http_requester.post(url=self._credentials.renewTokenUrl, json_dict={"data": request_data})
+            response = self._get_data(response=raw_response, response_obj=PwebRestLoginToken())
+            self._set_token(token=response)
+        except:
+            Console.log(message="Unable to renew token", system_log=True)
+            self._init_auth()
 
     def _init_config(self, is_open_auth: bool = False, base_url: str = None):
         if not self._credentials:
