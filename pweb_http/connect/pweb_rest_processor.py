@@ -1,8 +1,8 @@
+from bpy_obj.sdlize import SDLize
 from ppy_common import Console
 from pweb_http.common.pweb_http_exception import PWebHTTPException
 from pweb_http.connect.pweb_rest_http_data import PwebRestCredentials, HTTPRequestData, PWebRestConst
 from pweb_http.connect.pweb_rest_http_dto import PwebRestLoginResponse, PwebRestLoginToken, PwebRestResponse
-from pweb_http.connect.sdlize import SDLize
 from pweb_http.phttp.phttp_const import RequestType
 from pweb_http.phttp.pweb_requests import HTTPResponse, PWebRequests
 

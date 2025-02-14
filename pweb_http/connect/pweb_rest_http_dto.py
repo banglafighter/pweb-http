@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-
+from bpy_obj.sdlize import SDLize
 from pweb_http.connect.pweb_rest_http_data import PWebRestConst
-from pweb_http.connect.sdlize import SDLize
 
 
 @dataclass

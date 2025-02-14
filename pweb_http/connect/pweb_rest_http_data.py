@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-
-from pweb_http.connect.sdlize import SDLize
+from bpy_obj.sdlize import SDLize
 from pweb_http.phttp.phttp_const import RequestType
 
 
