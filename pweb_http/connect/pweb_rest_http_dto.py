@@ -15,11 +15,20 @@ class PwebRestLoginResponse(SDLize):
 
 
 @dataclass
+class PwebRestPaginationResponse(SDLize):
+    page: int = None
+    itemPerPage: int = None
+    total: int = None
+    totalPage: int = None
+
+
+@dataclass
 class PwebRestResponse(SDLize):
     status: str = None
     code: str = None
     message: str = None
     data: object = None
+    pagination: PwebRestPaginationResponse = None
 
     def get_data(self):
         if self.status == PWebRestConst.SUCCESS:
