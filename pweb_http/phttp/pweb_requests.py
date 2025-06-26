@@ -49,29 +49,29 @@ class PWebRequests:
         self.baseUrl = url
         return self
 
-    def get(self, url: str, params: dict = None) -> HTTPResponse:
+    def get(self, url: str, params: dict = None, verify: bool = True) -> HTTPResponse:
         url = self._get_url(url)
-        response = requests.get(url, headers=self.headers, params=params)
+        response = requests.get(url, headers=self.headers, params=params, verify=verify)
         return HTTPResponse.get_response(response)
 
-    def post(self, url: str, json_dict: dict = None, data: dict = None, file: dict = None) -> HTTPResponse:
+    def post(self, url: str, json_dict: dict = None, data: dict = None, file: dict = None, verify: bool = True) -> HTTPResponse:
         url = self._get_url(url)
-        response = requests.post(url, headers=self.headers, json=json_dict, data=data, files=file)
+        response = requests.post(url, headers=self.headers, json=json_dict, data=data, files=file, verify=verify)
         return HTTPResponse.get_response(response)
 
-    def put(self, url: str, json_dict: dict = None, data: dict = None, file: dict = None) -> HTTPResponse:
+    def put(self, url: str, json_dict: dict = None, data: dict = None, file: dict = None, verify: bool = True) -> HTTPResponse:
         url = self._get_url(url)
-        response = requests.put(url, headers=self.headers, json=json_dict, data=data, files=file)
+        response = requests.put(url, headers=self.headers, json=json_dict, data=data, files=file, verify=verify)
         return HTTPResponse.get_response(response)
 
-    def patch(self, url: str, json_dict: dict = None, data: dict = None, file: dict = None) -> HTTPResponse:
+    def patch(self, url: str, json_dict: dict = None, data: dict = None, file: dict = None, verify: bool = True) -> HTTPResponse:
         url = self._get_url(url)
-        response = requests.patch(url, headers=self.headers, json=json_dict, data=data, files=file)
+        response = requests.patch(url, headers=self.headers, json=json_dict, data=data, files=file, verify=verify)
         return HTTPResponse.get_response(response)
 
-    def delete(self, url: str, params: dict = None) -> HTTPResponse:
+    def delete(self, url: str, params: dict = None, verify: bool = True) -> HTTPResponse:
         url = self._get_url(url)
-        response = requests.delete(url, headers=self.headers, params=params)
+        response = requests.delete(url, headers=self.headers, params=params, verify=verify)
         return HTTPResponse.get_response(response)
 
     def add_header(self, key: str, value) -> 'PWebRequests':

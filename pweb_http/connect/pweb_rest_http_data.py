@@ -19,6 +19,7 @@ class HTTPRequestData:
     exception: bool = True
     is_open_auth: bool = False
     is_data_response: bool = True
+    verify: bool = True
 
 
 @dataclass

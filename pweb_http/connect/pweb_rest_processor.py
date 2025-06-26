@@ -98,13 +98,13 @@ class PWebRestProcessor:
     def _send_request(self, request_data: HTTPRequestData) -> HTTPResponse:
         response = None
         if request_data.request_type == RequestType.POST:
-            response = self.http_requester.post(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file)
+            response = self.http_requester.post(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file, verify=request_data.verify)
         elif request_data.request_type == RequestType.PUT:
-            response = self.http_requester.put(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file)
+            response = self.http_requester.put(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file, verify=request_data.verify)
         elif request_data.request_type == RequestType.PATCH:
-            response = self.http_requester.patch(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file)
+            response = self.http_requester.patch(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file, verify=request_data.verify)
         elif request_data.request_type == RequestType.DELETE:
-            response = self.http_requester.delete(url=request_data.url, params=request_data.params)
+            response = self.http_requester.delete(url=request_data.url, params=request_data.params, verify=request_data.verify)
         else:
             response = self.http_requester.get(url=request_data.url, params=request_data.params)
         request_summary = f"URL: {self.http_requester.baseUrl} \nURL Postfix: {request_data.url} \nparams: {request_data.params} \nJSON Data: {request_data.json_dict}"
