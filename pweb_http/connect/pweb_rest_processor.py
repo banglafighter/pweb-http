@@ -98,13 +98,13 @@ class PWebRestProcessor:
     def _send_request(self, request_data: HTTPRequestData) -> HTTPResponse:
         response = None
         if request_data.request_type == RequestType.POST:
-            response = self.http_requester.post(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file, verify=request_data.verify)
+            response = self.http_requester.post(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file, verify=request_data.ssl_verify)
         elif request_data.request_type == RequestType.PUT:
-            response = self.http_requester.put(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file, verify=request_data.verify)
+            response = self.http_requester.put(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file, verify=request_data.ssl_verify)
         elif request_data.request_type == RequestType.PATCH:
-            response = self.http_requester.patch(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file, verify=request_data.verify)
+            response = self.http_requester.patch(url=request_data.url, json_dict=request_data.json_dict, data=request_data.data, file=request_data.file, verify=request_data.ssl_verify)
         elif request_data.request_type == RequestType.DELETE:
-            response = self.http_requester.delete(url=request_data.url, params=request_data.params, verify=request_data.verify)
+            response = self.http_requester.delete(url=request_data.url, params=request_data.params, verify=request_data.ssl_verify)
         else:
             response = self.http_requester.get(url=request_data.url, params=request_data.params)
         request_summary = f"URL: {self.http_requester.baseUrl} \nURL Postfix: {request_data.url} \nparams: {request_data.params} \nJSON Data: {request_data.json_dict}"
@@ -119,22 +119,22 @@ class PWebRestProcessor:
             response: HTTPResponse = self._send_request(request_data=request_data)
         return self._get_data(response=response, response_obj=response_obj, exception=request_data.exception, is_data_response=request_data.is_data_response)
 
-    def get_request(self, url: str, params: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True):
-        return self.process_rest_request(request_data=HTTPRequestData(url=url, params=params, request_type=RequestType.GET, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response), response_obj=response_obj)
+    def get_request(self, url: str, params: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True, ssl_verify: bool = True):
+        return self.process_rest_request(request_data=HTTPRequestData(url=url, params=params, request_type=RequestType.GET, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response, ssl_verify=ssl_verify), response_obj=response_obj)
 
-    def delete_request(self, url: str, params: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True):
-        return self.process_rest_request(request_data=HTTPRequestData(url=url, params=params, request_type=RequestType.DELETE, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response), response_obj=response_obj)
+    def delete_request(self, url: str, params: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True, ssl_verify: bool = True):
+        return self.process_rest_request(request_data=HTTPRequestData(url=url, params=params, request_type=RequestType.DELETE, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response, ssl_verify=ssl_verify), response_obj=response_obj)
 
-    def post_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True):
+    def post_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True, ssl_verify: bool = True):
         json_dict = self._prepare_json_request_data(request_obj=request_obj, json_dict=json_dict)
-        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.POST, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response), response_obj=response_obj)
+        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.POST, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response, ssl_verify=ssl_verify), response_obj=response_obj)
 
-    def put_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True):
+    def put_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True, ssl_verify: bool = True):
         json_dict = self._prepare_json_request_data(request_obj=request_obj, json_dict=json_dict)
-        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.PUT, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response), response_obj=response_obj)
+        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.PUT, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response, ssl_verify=ssl_verify), response_obj=response_obj)
 
-    def patch_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True):
+    def patch_request(self, url: str, request_obj: SDLize = None, json_dict: dict = None, data: dict = None, file: dict = None, response_obj: SDLize = None, exception: bool = True, is_open_auth: bool = False, is_data_response=True, ssl_verify: bool = True):
         json_dict = self._prepare_json_request_data(request_obj=request_obj, json_dict=json_dict)
-        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.PATCH, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response), response_obj=response_obj)
+        return self.process_rest_request(request_data=HTTPRequestData(url=url, json_dict=json_dict, data=data, file=file, request_type=RequestType.PATCH, exception=exception, is_open_auth=is_open_auth, is_data_response=is_data_response, ssl_verify=ssl_verify), response_obj=response_obj)
 
 
